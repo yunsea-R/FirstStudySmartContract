@@ -18,6 +18,9 @@ contract FundMe{
     address owner;
     uint256 deployTimeStamp;
     uint256 lockTime;
+    address ERC20Addr;
+
+    bool public getFundSuccess = false;
     constructor(uint256 _lockTime)
     {
         dataFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
@@ -70,6 +73,8 @@ contract FundMe{
       (success,) = payable(msg.sender).call{value:address(this).balance}("");
       require(success,"tx is failed");
       fundersToAmount[msg.sender] = 0;
+
+      getFundSuccess = true;
     }
 
     //退款操作
@@ -95,5 +100,12 @@ contract FundMe{
     modifier onlyOwn(){
         require(msg.sender == owner,"the function can only be called by owner!");
         _;
+    }
+    function setFundersAmount(address funder,uint256 amountUpdate ) external  {
+      require(msg.sender == ERC20Addr,"you do not have a permission to call  this function");
+      fundersToAmount[funder] = amountUpdate;
+    }
+    function setERC20Addr(address erc20Addr) public onlyOwn{
+      ERC20Addr = erc20Addr;
     }
 }
